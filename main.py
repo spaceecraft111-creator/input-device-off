@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-入力デバイスオフ - 掃除用デバイス無効化アプリ
+Input Device Off - Device Disabler for Cleaning
 """
 
 import ctypes
@@ -15,35 +15,35 @@ ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("keyboard-off")
 
 
 def resource_path(name):
-    """PyInstaller の --onefile でも動くリソースパスを返す"""
+    """Return a resource path that also works with PyInstaller --onefile"""
     base = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base, name)
 
-# ── カラーパレット ──────────────────────────────
-BG        = "#f1f5f9"   # アプリ背景
-CARD      = "#ffffff"   # カード背景
-BORDER    = "#e2e8f0"   # カードボーダー
-TITLE_C   = "#0f172a"   # タイトルテキスト
-BODY_C    = "#64748b"   # サブテキスト
-ACCENT    = "#6366f1"   # アクセント（ボタン・ラベル）
-ACCENT_H  = "#4f46e5"   # ボタンホバー
+# ── Color palette ──────────────────────────────
+BG        = "#f1f5f9"   # App background
+CARD      = "#ffffff"   # Card background
+BORDER    = "#e2e8f0"   # Card border
+TITLE_C   = "#0f172a"   # Title text
+BODY_C    = "#64748b"   # Subtext
+ACCENT    = "#6366f1"   # Accent (buttons and labels)
+ACCENT_H  = "#4f46e5"   # Button hover
 
-ACT_BG    = "#1e293b"   # 無効化中：背景
-ACT_CARD  = "#0f172a"   # 無効化中：カード背景
-ACT_BORD  = "#334155"   # 無効化中：ボーダー
-ACT_TEXT  = "#e2e8f0"   # 無効化中：テキスト
-ACT_ACNT  = "#f59e0b"   # 無効化中：アクセント（アンバー）
-ACT_BTN   = "#334155"   # 無効化中：ボタン背景
-ACT_BTN_H = "#475569"   # 無効化中：ボタンホバー
+ACT_BG    = "#1e293b"   # Disabled state: background
+ACT_CARD  = "#0f172a"   # Disabled：Card background
+ACT_BORD  = "#334155"   # Disabled state: border
+ACT_TEXT  = "#e2e8f0"   # Disabled state: text
+ACT_ACNT  = "#f59e0b"   # Disabled state: accent (amber)
+ACT_BTN   = "#334155"   # Disabled state: button background
+ACT_BTN_H = "#475569"   # Disabled：Button hover
 
 RADIO_OPTIONS = [
-    ("keyboard", "キーボード"),
-    ("mouse",    "マウス"),
+    ("keyboard", "Keyboard"),
+    ("mouse",    "Mouse"),
 ]
 
 DEVICE_DESC = {
-    "keyboard": "接続しているすべてのキーボードが無効になります",
-    "mouse":    "接続しているすべてのマウスが無効になります",
+    "keyboard": "All connected keyboards will be disabled.",
+    "mouse":    "All connected mice will be disabled.",
 }
 
 
@@ -63,7 +63,7 @@ class App:
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
 
     # ──────────────────────────────────────────────
-    # ユーティリティ
+    # Utilities
     # ──────────────────────────────────────────────
 
     def _on_close(self):
@@ -94,7 +94,7 @@ class App:
         return btn
 
     # ──────────────────────────────────────────────
-    # メイン画面
+    # Main screen
     # ──────────────────────────────────────────────
 
     def _build_main(self):
@@ -105,49 +105,49 @@ class App:
                 pass
             self._device_trace_id = None
 
-        self._radio_cvs = {}   # value → Canvas（インジケーター）
+        self._radio_cvs = {}   # value -> Canvas (indicator)
 
         self._clear()
-        self.root.title("入力デバイスオフ")
+        self.root.title("Input Device Off")
         self.root.geometry("320x350")
         self.root.resizable(False, False)
         self.root.attributes("-topmost", False)
         self.root.configure(bg=BG)
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
 
-        # ── アクセントバー
+        # ── Accent bar
         tk.Frame(self.root, bg=ACCENT, height=4).pack(fill="x")
 
-        # ── ヘッダー
+        # ── Header
         hdr = tk.Frame(self.root, bg=BG)
         hdr.pack(fill="x", padx=24, pady=(18, 8))
-        tk.Label(hdr, text="入力デバイスオフ",
-                 font=("Yu Gothic UI", 16, "bold"),
+        tk.Label(hdr, text="Input Device Off",
+                 font=("Segoe UI", 16, "bold"),
                  bg=BG, fg=TITLE_C).pack(anchor="w")
-        tk.Label(hdr, text="無効化するデバイスを選んでね",
-                 bg=BG, fg=BODY_C, font=("Yu Gothic UI", 10)).pack(anchor="w")
+        tk.Label(hdr, text="Choose a device to disable.",
+                 bg=BG, fg=BODY_C, font=("Segoe UI", 10)).pack(anchor="w")
 
-        # ── デバイス選択カード
+        # ── Device selection card
         dev_card = self._card(self.root)
         dev_card.pack(padx=24, fill="x")
         dev_inner = tk.Frame(dev_card, bg=CARD)
         dev_inner.pack(fill="x", padx=16, pady=14)
 
-        tk.Label(dev_inner, text="デバイス選択",
+        tk.Label(dev_inner, text="Select Device",
                  bg=CARD, fg=BODY_C,
-                 font=("Yu Gothic UI", 8, "bold")).pack(anchor="w", pady=(0, 8))
+                 font=("Segoe UI", 8, "bold")).pack(anchor="w", pady=(0, 8))
 
         for value, label in RADIO_OPTIONS:
             self._make_radio(dev_inner, value, label)
 
-        # ── ショートカット設定カード（マウス選択時のみ）
+        # ── Shortcut settings card (only when Mouse is selected)
         self._sc_card = self._card(self.root)
         sc_inner = tk.Frame(self._sc_card, bg=CARD)
         sc_inner.pack(fill="x", padx=16, pady=14)
 
-        tk.Label(sc_inner, text="復帰ショートカット",
+        tk.Label(sc_inner, text="Recovery Shortcut",
                  bg=CARD, fg=BODY_C,
-                 font=("Yu Gothic UI", 8, "bold")).pack(anchor="w", pady=(0, 6))
+                 font=("Segoe UI", 8, "bold")).pack(anchor="w", pady=(0, 6))
 
         self._shortcut_lbl = tk.Label(
             sc_inner, text=self.recovery_hotkey,
@@ -157,33 +157,33 @@ class App:
         )
         self._shortcut_lbl.pack(anchor="w")
 
-        tk.Label(sc_inner, text="クリックして別のキーに変更できるよ",
+        tk.Label(sc_inner, text="Click to change the recovery shortcut.",
                  bg=CARD, fg=BODY_C,
-                 font=("Yu Gothic UI", 9)).pack(anchor="w", pady=(3, 0))
+                 font=("Segoe UI", 9)).pack(anchor="w", pady=(3, 0))
 
         self._shortcut_lbl.bind("<Button-1>", lambda e: self._begin_capture())
 
-        # ── 説明文（選択に応じて変わる）
+        # ── Description (changes with selection)
         self._desc_lbl = tk.Label(
             self.root, text="",
             bg=BG, fg=BODY_C,
-            font=("Yu Gothic UI", 9),
+            font=("Segoe UI", 9),
             wraplength=272, justify="left"
         )
         self._desc_lbl.pack(fill="x", padx=24, pady=(8, 0))
 
-        # ── 無効化ボタン
+        # ── Disable button
         self._btn_frame = tk.Frame(self.root, bg=BG)
         self._btn_frame.pack(fill="x", padx=24, pady=(8, 16))
 
         self._hover_btn(
-            self._btn_frame, text="無効化する",
+            self._btn_frame, text="Disable",
             command=self._on_disable_click,
             bg=ACCENT, hover=ACCENT_H,
-            font=("Yu Gothic UI", 12, "bold"), height=2
+            font=("Segoe UI", 12, "bold"), height=2
         ).pack(fill="x")
 
-        # ── デバイス選択変化を監視
+        # ── Watch for device selection changes
         self._device_trace_id = self.device_var.trace_add(
             "write", self._on_device_toggle
         )
@@ -200,7 +200,7 @@ class App:
         self._draw_radio(cv, False)
 
         lbl = tk.Label(row, text=label, bg=CARD, fg=TITLE_C,
-                       font=("Yu Gothic UI", 11, "bold"), cursor="hand2")
+                       font=("Segoe UI", 11, "bold"), cursor="hand2")
         lbl.pack(side="left")
 
         for w in [row, cv, lbl]:
@@ -217,14 +217,14 @@ class App:
     def _on_device_toggle(self, *_):
         selected = self.device_var.get()
 
-        # ラジオインジケーターを更新
+        # Update radio indicators
         for val, cv in self._radio_cvs.items():
             self._draw_radio(cv, val == selected)
 
-        # 説明文を更新
+        # Update description
         self._desc_lbl.config(text=DEVICE_DESC.get(selected, ""))
 
-        # ショートカットカードの表示切り替え
+        # Show or hide the shortcut card
         if selected == "mouse":
             self._desc_lbl.pack_forget()
             self._btn_frame.pack_forget()
@@ -238,25 +238,25 @@ class App:
             self.root.geometry("320x310")
 
     # ──────────────────────────────────────────────
-    # 無効化ボタン押下
+    # Disable button handler
     # ──────────────────────────────────────────────
 
     def _on_disable_click(self):
         if not self.device_var.get():
             messagebox.showwarning(
-                "選択してね", "無効化するデバイスを選んでね", parent=self.root
+                "Please select", "Choose a device to disable.", parent=self.root
             )
             return
         self._start()
 
     # ──────────────────────────────────────────────
-    # ショートカットキー入力キャプチャ
+    # Capture recovery shortcut input
     # ──────────────────────────────────────────────
 
     def _begin_capture(self):
         self._capturing     = True
         self._captured_keys = set()
-        self._shortcut_lbl.config(text="キーを押してね...", fg=ACT_ACNT)
+        self._shortcut_lbl.config(text="Press a key...", fg=ACT_ACNT)
         self.root.bind("<KeyPress>",   self._on_key_down)
         self.root.bind("<KeyRelease>", self._on_key_up)
         self.root.focus_set()
@@ -296,7 +296,7 @@ class App:
         return "+".join(parts)
 
     # ──────────────────────────────────────────────
-    # 無効化開始
+    # Start disabling device
     # ──────────────────────────────────────────────
 
     def _start(self):
@@ -324,12 +324,12 @@ class App:
             self.mouse_listener.start()
         except Exception as ex:
             messagebox.showerror(
-                "エラー", f"マウスのブロックに失敗したよ:\n{ex}",
+                "Error", f"Failed to block the mouse:\n{ex}",
                 parent=self.root
             )
 
     # ──────────────────────────────────────────────
-    # 無効化中の画面
+    # Disabled screen
     # ──────────────────────────────────────────────
 
     def _build_active(self):
@@ -340,54 +340,54 @@ class App:
 
         device = self.device_var.get()
         is_mouse = (device == "mouse")
-        device_label = "マウス" if is_mouse else "キーボード"
+        device_label = "Mouse" if is_mouse else "Keyboard"
 
-        # ── アクセントバー
+        # ── Accent bar
         tk.Frame(self.root, bg=ACT_ACNT, height=4).pack(fill="x")
 
-        # ── ヘッダー
+        # ── Header
         hdr = tk.Frame(self.root, bg=ACT_BG)
         hdr.pack(fill="x", padx=24, pady=(18, 8))
-        tk.Label(hdr, text="入力デバイスオフ",
-                 font=("Yu Gothic UI", 16, "bold"),
+        tk.Label(hdr, text="Input Device Off",
+                 font=("Segoe UI", 16, "bold"),
                  bg=ACT_BG, fg=ACT_TEXT).pack(anchor="w")
-        tk.Label(hdr, text="無効化中",
+        tk.Label(hdr, text="Device Disabled",
                  bg=ACT_BG, fg=ACT_ACNT,
-                 font=("Yu Gothic UI", 10, "bold")).pack(anchor="w")
+                 font=("Segoe UI", 10, "bold")).pack(anchor="w")
 
-        # ── ブロック中デバイス表示カード
+        # ── Blocked device display card
         sc = self._card(self.root, bg=ACT_CARD, border=ACT_BORD)
         sc.pack(padx=24, fill="x")
         tk.Label(
-            sc, text=f"{device_label}  をブロック中",
+            sc, text=f"{device_label} is blocked",
             bg=ACT_CARD, fg=ACT_TEXT,
-            font=("Yu Gothic UI", 11), pady=14
+            font=("Segoe UI", 11), pady=14
         ).pack()
 
         if is_mouse:
-            # ショートカット表示カード
+            # Shortcut display card
             kc = self._card(self.root, bg=ACT_CARD, border=ACT_BORD)
             kc.pack(padx=24, pady=(8, 0), fill="x")
             kc_inner = tk.Frame(kc, bg=ACT_CARD)
             kc_inner.pack(fill="x", padx=16, pady=12)
 
-            tk.Label(kc_inner, text="復帰するにはこのキーを押してね",
+            tk.Label(kc_inner, text="Press this shortcut to restore the device",
                      bg=ACT_CARD, fg=BODY_C,
-                     font=("Yu Gothic UI", 9)).pack(anchor="w")
+                     font=("Segoe UI", 9)).pack(anchor="w")
             tk.Label(kc_inner, text=self.recovery_hotkey,
                      bg=ACT_BG, fg=ACT_ACNT,
                      font=("Consolas", 14, "bold"),
                      padx=10, pady=6).pack(anchor="w", pady=(4, 0))
         else:
             self._hover_btn(
-                self.root, text="解除する",
+                self.root, text="Enable / Unlock",
                 command=self._restore,
                 bg=ACT_BTN, hover=ACT_BTN_H,
-                font=("Yu Gothic UI", 12, "bold"), height=2
+                font=("Segoe UI", 12, "bold"), height=2
             ).pack(fill="x", padx=24, pady=16)
 
     # ──────────────────────────────────────────────
-    # 復帰処理
+    # Restore device
     # ──────────────────────────────────────────────
 
     def _restore_safe(self):
@@ -412,7 +412,7 @@ class App:
         self._build_main()
 
     # ──────────────────────────────────────────────
-    # 起動
+    # Launch
     # ──────────────────────────────────────────────
 
     def run(self):
